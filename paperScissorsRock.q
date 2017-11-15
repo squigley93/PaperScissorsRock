@@ -110,7 +110,8 @@ fight:{[plyr]
 	  cs::cs%2;system "sleep 2";
 	  -25!(key .z.W;(-1;"Round Results:"));
 	  -25!(key .z.W;(show;results));
-	  janken[0b;players]];
+	  results::delete from results;
+	  :janken[0b;players]];
 	if[1=count raze players;delete from `cron];
 	matchcount+:1;
 	if[(matchcount=count roster)and any raze `DRAW=exec winner from results;delete from `cron;rematchplay::();-25!(key .z.W;(-1;"Rematchs to solve draws will now commence\n"));janken[1b;] rematchplay::flip value exec player1,player2 from results where winner = `DRAW]};
