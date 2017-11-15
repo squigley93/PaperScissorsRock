@@ -60,6 +60,7 @@ results:([match:()]player1:();player2:();winner:());
 
 //list of players
 players:();
+rematchplay:();
 
 //dict of weapons and correlating numbers
 weapons:`scissors`paper`rock!`s`p`r;
@@ -84,7 +85,7 @@ welc:"Welcome to paper scissors rock!\n Please select your weapon by typing eith
 pi:{[h;x] $[x~enlist "\n";"\n";
 	    x~"quit\n";exit 0;
 	    x~"\\\\\n";exit 0;
-	    x~"start\n";neg[h]"janken[players]";
+	    x~"start\n";neg[h]"janken[0b;players]";
 	   [a:"Not a weapon!\n";if[(`$(lower -1_x)) in key weapons;neg[h](`move;(lower -1_x));a:"Weapon choice sent\n"];a]]};
 
 //function called by user to upload weapon choice
@@ -103,23 +104,19 @@ fight:{[plyr]
 	-25!(key .z.W;(-1;(string plyr[0])," chose ",string wep1));
 	-25!(key .z.W;(-1;(string plyr[1])," chose ",string wep2));
 	{-25!(key .z.W;(-1;"The winner is: ", string x))}res;
-	/if[res=`DRAW;-25!(key .z.W;(-1;"Rematch between ",(string plyr[0])," and ",string plyr[1]));
-	/  -25!(key .z.W;::);
-	/  system "sleep 5";.z.s[plyr]];
 	if[not res=`DRAW;delete from `choice where (name in plyr) & not name = res;
 	  players::2 cut exec name from choice];
 	if[((count choice)=cs%2) & not 1=count choice;
 	  cs::cs%2;system "sleep 2";
 	  -25!(key .z.W;(-1;"Round Results:"));
 	  -25!(key .z.W;(show;results));
-	  janken[players]];
+	  janken[0b;players]];
 	if[1=count raze players;delete from `cron];
 	matchcount+:1;
-	if[matchcount=count roster;-25!(key .z.W;(-1;"Rematchs to solve draws will now commence\n"));
-	janken each flip value exec player1,player2 from results where winner = `DRAW]};
+	if[(matchcount=count roster)and any raze `DRAW=exec winner from results;delete from `cron;rematchplay::();-25!(key .z.W;(-1;"Rematchs to solve draws will now commence\n"));janken[1b;] rematchplay::flip value exec player1,player2 from results where winner = `DRAW]};
 
 //countdown for reveal
-janken:{[plyr]
+janken:{[rematch;plyr]
 	matchcount::0;
 	delete from `roster;
 	`roster insert (1+(til count plyr);plyr[;0];plyr[;1]);
@@ -128,4 +125,5 @@ janken:{[plyr]
 	-25!(key .z.W;(-1; "scissors!\n",s));-25!(key .z.W;::);system "sleep 2";
 	-25!(key .z.W;(-1; "rock!\n",r));-25!(key .z.W;::);system "sleep 2";
 	-25!(key .z.W;(-1; "GO!"));-25!(key .z.W;::);system "sleep 2";
-	`cron upsert (.z.P+00:00:01;"fight each players")};
+	$[rematch;`cron upsert (.z.P+00:00:01;"fight each rematchplay");
+	`cron upsert (.z.P+00:00:01;"fight each players")]};
