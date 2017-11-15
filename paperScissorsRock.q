@@ -97,7 +97,7 @@ rules:{(d cross d:(key weapons))!(`DRAW;x;y;y;`DRAW;x;x;y;`DRAW)};
 fight:{[plyr]
 	l:rules[plyr[0];plyr[1]];
 	res:l exec weapon from choice where name in plyr;
-	results::update winner:res from (results uj roster) where player1 = plyr[0];
+	results::update winner:res from (results uj 0N!roster) where player1 = plyr[0];
 	wep1:first exec weapon from choice where name = plyr[0];
 	wep2:first exec weapon from choice where name = plyr[1];
 	-25!(key .z.W;(-1;("\033[G",value weapons[wep1]),"\n   VS   \n",value wepf[weapons[wep2]]));
@@ -111,16 +111,17 @@ fight:{[plyr]
 	  -25!(key .z.W;(-1;"Round Results:"));
 	  -25!(key .z.W;(show;results));
 	  results::delete from results;
+	  delete from `cron;
 	  :janken[0b;players]];
 	if[1=count raze players;delete from `cron];
 	matchcount+:1;
-	if[(matchcount=count roster)and any raze `DRAW=exec winner from results;delete from `cron;rematchplay::();-25!(key .z.W;(-1;"Rematchs to solve draws will now commence\n"));janken[1b;] rematchplay::flip value exec player1,player2 from results where winner = `DRAW]};
+	if[(matchcount=count roster)and any raze `DRAW=exec winner from results;delete from `cron;-25!(key .z.W;(-1;"Rematchs to solve draws will now commence\n"));janken[1b;] rematchplay::flip value exec player1,player2 from results where winner = `DRAW]};
 
 //countdown for reveal
 janken:{[rematch;plyr]
 	matchcount::0;
 	delete from `roster;
-	`roster insert (1+(til count plyr);plyr[;0];plyr[;1]);
+	`roster insert 0N!(1+(til count plyr);plyr[;0];plyr[;1]);
 	-25!(key .z.W;(-1;"\nGame Starting.\n","\nRoster:"));-25!(key .z.W;(show;roster));-25!(key .z.W;::);system "sleep 10";
 	-25!(key .z.W;(-1;"paper!\n",p));-25!(key .z.W;::);system "sleep 2";
 	-25!(key .z.W;(-1; "scissors!\n",s));-25!(key .z.W;::);system "sleep 2";
