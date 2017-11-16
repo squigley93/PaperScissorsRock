@@ -85,7 +85,8 @@ welc:"Welcome to paper scissors rock!\n Please select your weapon by typing eith
 pi:{[h;x] $[x~enlist "\n";"\n";
 	    x~"quit\n";exit 0;
 	    x~"\\\\\n";exit 0;
-	    x~"start\n";neg[h]"janken[0b;players]";
+	    x~"start\n";neg[h]"$[not 0=(count raze players)mod 2;-25!(key .z.W;(-1;\"Not a suitable number of players\"));janken[0b;players]]";
+		//janken[0b;players]";
 	   [a:"Not a weapon!\n";if[(`$(lower -1_x)) in key weapons;neg[h](`move;(lower -1_x));a:"Weapon choice sent\n"];a]]};
 
 //function called by user to upload weapon choice
